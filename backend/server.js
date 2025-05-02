@@ -5,6 +5,8 @@ const path = require("path");
 const connectDB = require("./config/db");
 const https = require("https");
 const fs = require("fs");  // Required for reading the SSL certificate
+const helmet = require("helmet"); // For adding security headers
+const rateLimit = require("express-rate-limit"); // For rate limiting
 
 // Routes
 const authRoutes = require("./routes/authRoutes");
@@ -15,13 +17,25 @@ const reportRoutes = require("./routes/reportRoutes");
 const app = express();
 
 // CORS setup
+const allowedOrigins = process.env.CLIENT_URL || "*"; // You should ideally define this strictly in production
+
 app.use(
     cors({
-        origin: process.env.CLIENT_URL || "*",
+        origin: allowedOrigins,
         methods: ["GET", "POST", "PUT", "DELETE"],
         allowedHeaders: ["Content-Type", "Authorization"],
     })
 );
+
+// Add additional security headers using helmet
+app.use(helmet());
+
+// Apply rate limiting to prevent abuse of your API
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+});
+app.use(limiter);
 
 connectDB();
 
