@@ -17,15 +17,18 @@ const reportRoutes = require("./routes/reportRoutes");
 const app = express();
 
 // CORS setup
-const allowedOrigins = process.env.CLIENT_URL || "*"; // You should ideally define this strictly in production
+
+const allowedOrigin = process.env.CLIENT_URL || "http://localhost:5173";
 
 app.use(
     cors({
-        origin: allowedOrigins,
+        origin: allowedOrigin,
+        credentials: true,
         methods: ["GET", "POST", "PUT", "DELETE"],
         allowedHeaders: ["Content-Type", "Authorization"],
     })
 );
+
 
 // Add additional security headers using helmet
 app.use(helmet());
